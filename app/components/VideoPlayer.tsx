@@ -296,6 +296,10 @@ export default function VideoPlayer({ url, onChangeLink }: Props) {
 
   // ── Mobile double-tap ──────────────────────────────────────────────────────
   const handleTap = useCallback((e: React.TouchEvent<HTMLDivElement>) => {
+    // Ignore taps that land on an interactive control (button, input, etc.)
+    const target = e.target as HTMLElement;
+    if (target.closest("button, input, [role='slider']")) return;
+
     const rect = (e.currentTarget as HTMLDivElement).getBoundingClientRect();
     const x = e.changedTouches[0].clientX - rect.left;
     const side: "left" | "right" = x < rect.width / 2 ? "left" : "right";
@@ -321,6 +325,7 @@ export default function VideoPlayer({ url, onChangeLink }: Props) {
       style={{ aspectRatio: "16/9" }}
       onMouseMove={showControls}
       onMouseLeave={() => { if (state.isPlaying) set({ controlsVisible: false }); }}
+      onTouchEnd={handleTap}
     >
       <video
         ref={videoRef}
@@ -349,9 +354,6 @@ export default function VideoPlayer({ url, onChangeLink }: Props) {
           +10
         </button>
       </div>
-
-      {/* Mobile tap zone */}
-      <div className="sm:hidden absolute inset-0 z-10" onTouchEnd={handleTap} />
 
       {/* Skip animation */}
       <SkipAnimation direction={state.skipDir} onDone={() => set({ skipDir: null })} />
