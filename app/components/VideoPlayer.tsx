@@ -92,10 +92,18 @@ export default function VideoPlayer({ url, onChangeLink }: Props) {
 
     // Normalize HTML-encoded ampersands that may appear in pasted URLs
     const normalizedUrl = url.replace(/&amp;/g, "&");
-    // Route all HLS traffic through the server-side proxy to avoid CORS
+    // Route all traffic through the server-side proxy to avoid CORS
     const proxyUrl = buildProxyUrl(normalizedUrl);
+    const isMp4 = !normalizedUrl.includes(".m3u8");
 
-    if (Hls.isSupported()) {
+    if (isMp4) {
+      // Direct MP4 — skip HLS entirely
+      destroyHls();
+      video.src = proxyUrl;
+      video.addEventListener("loadedmetadata", () => set({ isLoading: false }), { once: true });
+      video.addEventListener("error", () => set({ error: true, isLoading: false, errorMessage: null }), { once: true });
+      video.play().catch(() => {});
+    } else if (Hls.isSupported()) {
       destroyHls();
       const hls = new Hls({ enableWorker: true, lowLatencyMode: false });
       hlsRef.current = hls;

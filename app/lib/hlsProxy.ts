@@ -1,10 +1,10 @@
 /**
- * HLS proxy core library.
+ * Media proxy core library.
  *
  * Responsibilities:
  *  - Validate upstream URLs (protocol + SSRF guard)
  *  - Detect HLS playlist responses
- *  - Rewrite HLS playlist URIs so every subsequent request routes through /api/hls
+ *  - Rewrite HLS playlist URIs so every subsequent request routes through /api/stream
  */
 
 // ── SSRF guard ────────────────────────────────────────────────────────────────
@@ -113,7 +113,7 @@ export function isHlsUrl(url: string): boolean {
  * The full URL (including query string) is preserved via encodeURIComponent.
  */
 export function buildProxyUrl(absoluteUpstreamUrl: string): string {
-  return `/api/hls?url=${encodeURIComponent(absoluteUpstreamUrl)}`;
+  return `/api/stream?u=${encodeURIComponent(absoluteUpstreamUrl)}`;
 }
 
 // ── HLS playlist rewriter ─────────────────────────────────────────────────────
